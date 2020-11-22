@@ -28,9 +28,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.py" />
+    <Compile Include="file_helper.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
+    <Content Include="static\images\ava3.jpg" />
+    <Content Include="static\images\chau.jpg" />
+    <Content Include="static\images\default-logo.png" />
+    <Content Include="static\images\quy.jpg" />
+    <Content Include="static\main.css" />
+    <Content Include="static\nicepage.css" />
+    <Content Include="templates\index.html" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
@@ -44,6 +52,8 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="static\" />
+    <Folder Include="static\images\" />
     <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />
