@@ -28,7 +28,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.py" />
-    <Compile Include="file_helper.py" />
+    <Compile Include="entities.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="helpers\db_helper.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="helpers\file_helper.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
@@ -52,6 +58,7 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="helpers\" />
     <Folder Include="static\" />
     <Folder Include="static\images\" />
     <Folder Include="templates\" />
