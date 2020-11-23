@@ -1,45 +1,67 @@
+from flask_mongoengine import MongoEngine
+import json
 
+tolDb = MongoEngine()
 
+class MainClaims(tolDb.Document):
+    mainClaimId = tolDb.IntField()
+    gameId = tolDb.IntField()
+    statement = tolDb.StringField()
+    numOfAgree = tolDb.IntField()
+    numOfDisagree = tolDb.IntField()
 
-class Game(object):
-    gameId = 0
-    startTime = ""
-    endTime = ""
-    numOfPlayer = 0
-    isCurrent = False
+    meta = {
+        'collection': 'MainClaims'
+    }
 
-class User(object):
-    userId = 0
-    userType = ""
-    username = ""
-    email = ""
-    password = ""
-    fullName = ""
-    studentClass = ""
-    studentNumber = ""
-    gamePlayed = 0
+class Games(tolDb.Document):
+    gameId = tolDb.IntField()
+    startTime = tolDb.DateTimeField()
+    endTime = tolDb.DateTimeField()
+    numOfPlayer = tolDb.IntField()
+    isCurrent = tolDb.BooleanField()
 
-class MainClaim(object):
-    mainClaimId = 0
-    gameId = 0
-    statement = ""
-    numOfAgree = 0
-    numOfDisagree = 0
+    meta = {
+        'collection': 'Games'
+    }
 
-class ReasonInPlay(object):
-    ripId = 0
-    mainClaimId = 0
-    studentId = 0
-    reasonStatement = ""
-    description = ""
-    logicSide = ""
+class Users(tolDb.Document):
+    userId = tolDb.IntField()
+    userType = tolDb.StringField()
+    username = tolDb.StringField()
+    email = tolDb.StringField()
+    password = tolDb.StringField()
+    fullName =  tolDb.StringField()
+    studentClass = tolDb.StringField()
+    studentNumber = tolDb.StringField()
+    gamePlayed = tolDb.IntField()
 
-class Vote(object):
-    voteId = 0
-    gameId = 0
-    userId = 0
-    mainClaimId = 0
-    ripId = 0
-    statementToVote = ""
-    voteSide = ""
+    meta = {
+        'collection': 'Users'
+    }
+
+class ReasonInPlays(tolDb.Document):
+    ripId = tolDb.IntField()
+    mainClaimId = tolDb.IntField()
+    studentId = tolDb.IntField()
+    reasonStatement = tolDb.StringField()
+    description = tolDb.StringField()
+    logicSide = tolDb.StringField()
+
+    meta = {
+        'collection': 'ReasonInPlays'
+    }
+
+class Votes(tolDb.Document):
+    voteId = tolDb.IntField()
+    gameId = tolDb.IntField()
+    userId = tolDb.IntField()
+    mainClaimId = tolDb.IntField()
+    ripId = tolDb.IntField()
+    statementToVote = tolDb.StringField()
+    voteSide = tolDb.StringField()
+
+    meta = {
+        'collection': 'Votes'
+    }
 
