@@ -1,14 +1,8 @@
 from flask import Flask, render_template, redirect, jsonify, request, make_response
-from flask_mongoengine import MongoEngine
+from helpers.db_helper import db_helper
 
 app = Flask(__name__)
-
-#mongodb+srv://<username>:<password>@cluster0.354jx.mongodb.net/tugoflogicdb?retryWrites=true&w=majority
-#Remember to change your mongo atlas user name and password
-app.config['MONGODB_HOST'] = 'mongodb+srv://dbjim:bKyDO0W2FASSsfd7@cluster0.354jx.mongodb.net/tugoflogicdb?retryWrites=true&w=majority'
-
-db = MongoEngine()
-db.init_app(app)
+tolDb = db_helper.get_db_connection(app)
 
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
@@ -39,12 +33,12 @@ def update_votes():
 
 # Student blocks:
 
-class MainClaims(db.Document):
-    mainClaimId = db.StringField()
-    gameId = db.IntField()
-    statement = db.StringField()
-    numOfAgree = db.IntField()
-    numOfDisagree = db.IntField()
+class MainClaims(tolDb.Document):
+    mainClaimId = tolDb.StringField()
+    gameId = tolDb.IntField()
+    statement = tolDb.StringField()
+    numOfAgree = tolDb.IntField()
+    numOfDisagree = tolDb.IntField()
     meta = {
         'collection': 'MainClaims'
     }
