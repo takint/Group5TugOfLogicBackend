@@ -3,21 +3,15 @@ from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
 
-#"mongodb+srv://<username>:<password>@cluster0.354jx.mongodb.net/tugoflogicdb?retryWrites=true&w=majority"
-app.config['MONGODB_SETTINGS'] = {
-    'host': 'mongodb+srv://cluster0.354jx.mongodb.net',
-    'db': 'tugoflogicdb',
-    'username':'<username>',
-    'password':'<password>'
-}
+#mongodb+srv://<username>:<password>@cluster0.354jx.mongodb.net/tugoflogicdb?retryWrites=true&w=majority
 #Remember to change your mongo atlas user name and password
+app.config['MONGODB_HOST'] = 'mongodb+srv://dbjim:bKyDO0W2FASSsfd7@cluster0.354jx.mongodb.net/tugoflogicdb?retryWrites=true&w=majority'
 
-db = MongoEngine(app)
-
+db = MongoEngine()
+db.init_app(app)
 
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
-
 
 @app.route('/')
 def init():
@@ -45,8 +39,20 @@ def update_votes():
 
 # Student blocks:
 
+class MainClaims(db.Document):
+    mainClaimId = db.StringField()
+    gameId = db.IntField()
+    statement = db.StringField()
+    numOfAgree = db.IntField()
+    numOfDisagree = db.IntField()
+    meta = {
+        'collection': 'MainClaims'
+    }
+
+@app.route('/main-claims')
 def get_main_claims():
-    return ""
+    mc = MainClaims.objects
+    return jsonify(mc)
 
 def get_rips():
     return ""
@@ -55,3 +61,13 @@ def get_rips():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+
+# For debug on windows
+#if __name__ == '__main__':
+#    import os
+#    HOST = os.environ.get('SERVER_HOST', 'localhost')
+#    try:
+#        PORT = int(os.environ.get('SERVER_PORT', '5000'))
+#    except ValueError:
+#        PORT = 5000
+#    app.run(HOST, PORT)
