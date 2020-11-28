@@ -16,8 +16,8 @@ class MainClaims(tolDb.Document):
 
 class Games(tolDb.Document):
     gameId = tolDb.IntField()
-    startTime = tolDb.DateTimeField()
-    endTime = tolDb.DateTimeField()
+    startTime = tolDb.StringField()
+    endTime = tolDb.StringField()
     numOfPlayer = tolDb.IntField()
     isCurrent = tolDb.BooleanField()
 

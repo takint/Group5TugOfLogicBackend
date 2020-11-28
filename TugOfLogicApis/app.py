@@ -1,9 +1,11 @@
 from flask import Flask, render_template, redirect, jsonify, request, make_response
 from entities import Games, MainClaims, Votes, Users, ReasonInPlays
+from flask_socketio import SocketIO, emit
 import helpers.db_helper as dbHelpers
 import json
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 tolDb = dbHelpers.get_db_connection(app)
 
 # Make the WSGI interface available at the top level so wfastcgi can get it.
@@ -92,6 +94,7 @@ def get_game(id):
 @app.route('/add-game', methods=['POST'])
 def add_game():
     game = request.get_json()
+    print(game)
     newGame = Games(gameId=game["gameId"],
                     startTime=game["startTime"],
                     endTime=game["endTime"],
@@ -292,10 +295,44 @@ def delete_vote():
 
     return jsonify(deleteVote)
 
+tugGame = {}
+users = {}
+games = []
+
+@socketio.on('newGame')
+def receive_new_game_from_instructor(data):
+    #print(data) # this is just to verify/see the data received from the client
+    tugGame[data] = request.sid # the session id is "saved"
+    games.append(data)  #save gameRoomId
+    send_broadcast_message_game_room(data)
+
+@socketio.on('newUser')
+def receive_new_user_from_student(data):
+    #print(data) # this is just to verify/see the data received from the client
+    users[data] = request.sid # the session id is "saved"
+    send_broadcast_message_user(data)
+
+    
+@socketio.on('getRunningGame')
+def get_running_game(data):
+    send_broadcast_message_game_room(format(games))
+
+@socketio.on('startGame')
+def startGame():
+    emit('notification_startGame','', broadcast=True)
+
+# this would send a message to ALL clients
+def send_broadcast_message_game_room(msg):
+    emit('notification_game_room', msg, broadcast=True)
+
+# this would send a message to ALL clients
+def send_broadcast_message_user(msg):
+    emit('notification_user', msg, broadcast=True)
+
 # End student blocks
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=False)
 
 # For debug on windows
 #if __name__ == '__main__':
