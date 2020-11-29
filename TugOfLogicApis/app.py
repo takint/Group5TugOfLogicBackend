@@ -257,13 +257,13 @@ def get_vote(id):
 def add_vote():
     vote = request.get_json()
 
-    newVote = Votes(voteId=reason["voteId"],
-                    gameId=reason["gameId"],
-                    userId=reason["userId"],
-                    mainClaimId=reason["mainClaimId"],
-                    ripId=reason["ripId"],
-                    statementToVote=reason["statementToVote"],
-                    voteSide=reason["voteSide"])
+    newVote = Votes(voteId=vote["voteId"],
+                    gameId=vote["gameId"],
+                    userId=vote["userId"],
+                    mainClaimId=vote["mainClaimId"],
+                    ripId=vote["ripId"],
+                    statementToVote=vote["statementToVote"],
+                    voteSide=vote["voteSide"])
 
     newVote.save()
     return jsonify(newVote)
@@ -271,22 +271,22 @@ def add_vote():
 @app.route('/update-vote', methods=['PUT'])
 def update_vote():
     vote = request.get_json()
-    updateVote = Votes.objects(voteId=reason["voteId"]).first()
+    updateVote = Votes.objects(voteId=vote["voteId"]).first()
 
     if not updateVote:
         return jsonify({'error': 'data not found'})
     else:
-        updateVote.update(mainClaimId=reason["mainClaimId"],
-                          ripId=reason["ripId"],
-                          statementToVote=reason["statementToVote"],
-                          voteSide=reason["voteSide"])
+        updateVote.update(mainClaimId=vote["mainClaimId"],
+                          ripId=vote["ripId"],
+                          statementToVote=vote["statementToVote"],
+                          voteSide=vote["voteSide"])
 
     return jsonify(updateVote)
 
 @app.route('/delete-vote', methods=['DELETE'])
 def delete_vote():
     vote = request.get_json()
-    deleteVote = ReasonInPlays.objects(voteId=reason["voteId"]).first()
+    deleteVote = ReasonInPlays.objects(voteId=vote["voteId"]).first()
 
     if not rip:
         return jsonify({'error': 'data not found'})
@@ -301,6 +301,7 @@ games = []
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
+    games.clear()
     #print(data) # this is just to verify/see the data received from the client
     tugGame[data] = request.sid # the session id is "saved"
     games.append(data)  #save gameRoomId
@@ -315,7 +316,8 @@ def receive_new_user_from_student(data):
     
 @socketio.on('getRunningGame')
 def get_running_game(data):
-    send_broadcast_message_game_room(format(games))
+    users[data] = request.sid
+    emit('notification_game_room', format(games), room=users[data])
 
 @socketio.on('startGame')
 def startGame():
