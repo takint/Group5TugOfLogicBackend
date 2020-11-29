@@ -11,9 +11,11 @@ tolDb = dbHelpers.get_db_connection(app)
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
 
+
 @app.route('/', methods=['GET'])
 def init():
     return render_template('index.html')
+
 
 # Common blocks:
 @app.route('/login', methods=['POST'])
@@ -25,6 +27,7 @@ def login():
     if not user:
         return jsonify({'error': 'User and password are invalid!'})
     return jsonify(user)
+
 
 # End Common blocks
 
