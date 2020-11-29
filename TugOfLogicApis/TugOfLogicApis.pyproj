@@ -37,6 +37,7 @@
     <Compile Include="helpers\file_helper.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="readme.md" />
     <Content Include="requirements.txt" />
     <Content Include="static\images\ava3.jpg" />
     <Content Include="static\images\chau.jpg" />
