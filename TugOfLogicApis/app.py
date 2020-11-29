@@ -329,7 +329,7 @@ def get_running_game():
     for g in gameData:
         currentGameIds.append(g.gameId)
 
-    emit('notification_game_room', format(currentGameIds))
+    send_broadcast_message_game_room(format(currentGameIds))
 
 @socketio.on('startGame')
 def startGame():
