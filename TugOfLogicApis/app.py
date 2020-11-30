@@ -214,17 +214,33 @@ def get_rip(id):
     reason = ReasonInPlays.objects(ripId=id).first()
     return jsonify(reason)
 
+@app.route('/rips/<string:username>', methods=['GET'])
+def get_rip_by_user(username):
+    user = Users.objects(username=username).first()
+    reason = ReasonInPlays.objects(studentId=user.userId) if user else ReasonInPlays.objects
+    return jsonify(reason)
+
 @app.route('/add-rip', methods=['POST'])
 def add_rip():
     reason = request.get_json()
+    rip = None
+    if reason["ripId"] == 0:
+        newId = ReasonInPlays.objects.count() + 1
+        rip = ReasonInPlays(ripId=newId,
+                            mainClaimId=reason["mainClaimId"],
+                            studentId=reason["studentId"],
+                            reasonStatement=reason["reasonStatement"],
+                            description=reason["description"],
+                            logicSide=reason["logicSide"])
+        rip.save()
+    else:
+        rip = ReasonInPlays.objects(ripId=reason["ripId"]).first()
+        rip.update(mainClaimId=reason["mainClaimId"],
+                    studentId=reason["studentId"],
+                    reasonStatement=reason["reasonStatement"],
+                    description=reason["description"],
+                    logicSide=reason["logicSide"])
 
-    rip = ReasonInPlays(ripId=reason["ripId"],
-                        mainClaimId=reason["mainClaimId"],
-                        studentId=reason["studentId"],
-                        reasonStatement=reason["reasonStatement"],
-                        description=reason["description"],
-                        logicSide=reason["logicSide"])
-    rip.save()
     return jsonify(rip)
 
 @app.route('/update-rip', methods=['PUT'])
@@ -241,17 +257,14 @@ def update_rip():
 
     return jsonify(rip)
 
-@app.route('/delete-rip', methods=['DELETE'])
-def delete_rip():
-    reason = request.get_json()
-    rip = ReasonInPlays.objects(ripId=reason["ripId"]).first()
-
+@app.route('/delete-rip/<int:ripId>', methods=['DELETE'])
+def delete_rip(ripId):
+    rip = ReasonInPlays.objects(ripId=ripId).first()
     if not rip:
         return jsonify({'error': 'data not found'})
     else:
         rip.delete()
-
-    return jsonify(rip)
+    return jsonify("RiP deleted: OK")
 
 ###Votes###
 @app.route('/votes', methods=['GET'])
@@ -306,6 +319,14 @@ def delete_vote():
 
     return jsonify(deleteVote)
 
+
+@socketio.on('newRipFromPlayer')
+def receive_new_rip_from_student(data):
+    emit('newRipFromPlayer', data, broadcast=True)
+    
+@socketio.on('removeRipFromPlayer')
+def remove_rip_from_student(data):
+    emit('removeRipFromPlayer', data, broadcast=True)
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
