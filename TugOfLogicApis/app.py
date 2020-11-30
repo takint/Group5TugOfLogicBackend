@@ -87,7 +87,16 @@ def delete_main_claim(mcId):
 @app.route('/games', methods=['GET'])
 def get_games():
     games = Games.objects
-    return jsonify(games)
+    isCurrent = request.args.get('isCurrent')
+
+    if isCurrent == 'true':
+        isCurrent = True
+        return jsonify(Games.objects(isCurrent=isCurrent))
+    elif isCurrent == 'false':
+        isCurrent = False
+        return jsonify(Games.objects(isCurrent=isCurrent))
+    else:
+        return jsonify(games)
 
 @app.route('/games/<int:id>', methods=['GET'])
 def get_game(id):
