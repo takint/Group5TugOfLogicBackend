@@ -300,6 +300,8 @@ def delete_vote():
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
+    Games.objects.update(isCurrent=False)
+    Users.objects.delete()
     send_broadcast_message_game_room(format(data))
 
 @socketio.on('newUser')
@@ -337,12 +339,15 @@ def get_running_game():
 
 
 @socketio.on('startGame')
-def startGame(msg):
-    print(msg)
-    emit('notification_startGame', msg, broadcast=True)
-
-
-
+def startGame(data):
+    print(data)
+    gameId = data.split(':')[0]
+    mcs = data.split(':')[1][:-1]
+    selectedMainClaims = mcs.split(',')
+    for mc in selectedMainClaims:
+        updatedMainClaim = MainClaims.objects(mainClaimId=mc).first()
+        updatedMainClaim.update(gameId = gameId)
+    emit('notification_startGame', data, broadcast=True)
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
