@@ -314,7 +314,7 @@ def receive_new_user_from_student(data):
                     fullName=userGame[0],
                     gamePlayed=userGame[1])
         newUser.save()
-
+    
     userData = Users.objects(gamePlayed=int(userGame[1])).only('username')
     listUsers = []
     
@@ -326,18 +326,23 @@ def receive_new_user_from_student(data):
 
 @socketio.on('getRunningGame')
 def get_running_game():
+    currentSession = request.sid
     gameData = Games.objects(isCurrent=True).only('gameId')
     currentGameIds = []
     
     for g in gameData:
         currentGameIds.append(g.gameId)
 
-    send_broadcast_message_game_room(format(currentGameIds))
+    emit('notification_game_room', format(currentGameIds), room = currentSession)
+
 
 @socketio.on('startGame')
 def startGame(msg):
     print(msg)
     emit('notification_startGame', msg, broadcast=True)
+
+
+
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
@@ -360,4 +365,4 @@ if __name__ == '__main__':
         PORT = int(os.environ.get('SERVER_PORT', '5000'))
     except ValueError:
         PORT = 5000
-    app.run(HOST, PORT, debug=True)
+    app.run(HOST, PORT, debug=False)
