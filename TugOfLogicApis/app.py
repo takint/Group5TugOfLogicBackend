@@ -94,7 +94,6 @@ def get_game(id):
 @app.route('/add-game', methods=['POST'])
 def add_game():
     game = request.get_json()
-    print(game)
     newGame = Games(gameId=game["gameId"],
                     startTime=game["startTime"],
                     endTime=game["endTime"],
@@ -288,40 +287,54 @@ def delete_vote():
     vote = request.get_json()
     deleteVote = ReasonInPlays.objects(voteId=vote["voteId"]).first()
 
-    if not rip:
+    if not deleteVote:
         return jsonify({'error': 'data not found'})
     else:
         deleteVote.delete()
 
     return jsonify(deleteVote)
 
-tugGame = {}
-users = {}
-games = []
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
-    games.clear()
-    #print(data) # this is just to verify/see the data received from the client
-    tugGame[data] = request.sid # the session id is "saved"
-    games.append(data)  #save gameRoomId
-    send_broadcast_message_game_room(data)
+    send_broadcast_message_game_room(format(data))
 
 @socketio.on('newUser')
 def receive_new_user_from_student(data):
-    #print(data) # this is just to verify/see the data received from the client
-    users[data] = request.sid # the session id is "saved"
-    send_broadcast_message_user(data)
+    userGame = data.split(':')
 
+    existedUser = Users.objects(username=userGame[0], gamePlayed=userGame[1]).first()
+    if not existedUser:
+        newUser = Users(userType="Student",
+                    username=userGame[0],
+                    email=userGame[0],
+                    fullName=userGame[0],
+                    gamePlayed=userGame[1])
+        newUser.save()
+
+    userData = Users.objects(gamePlayed=int(userGame[1])).only('username')
+    listUsers = []
     
+    for u in userData:
+        listUsers.append(u.username)
+
+    print(listUsers)
+    send_broadcast_message_user(format(listUsers))
+
 @socketio.on('getRunningGame')
-def get_running_game(data):
-    users[data] = request.sid
-    emit('notification_game_room', format(games), room=users[data])
+def get_running_game():
+    gameData = Games.objects(isCurrent=True).only('gameId')
+    currentGameIds = []
+    
+    for g in gameData:
+        currentGameIds.append(g.gameId)
+
+    send_broadcast_message_game_room(format(currentGameIds))
 
 @socketio.on('startGame')
-def startGame():
-    emit('notification_startGame','', broadcast=True)
+def startGame(msg):
+    print(msg)
+    emit('notification_startGame', msg, broadcast=True)
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
@@ -333,15 +346,15 @@ def send_broadcast_message_user(msg):
 
 # End student blocks
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+#if __name__ == '__main__':
+#    app.run(host='0.0.0.0', debug=False)
 
 # For debug on windows
-#if __name__ == '__main__':
-#    import os
-#    HOST = os.environ.get('SERVER_HOST', 'localhost')
-#    try:
-#        PORT = int(os.environ.get('SERVER_PORT', '5000'))
-#    except ValueError:
-#        PORT = 5000
-#    app.run(HOST, PORT)
+if __name__ == '__main__':
+    import os
+    HOST = os.environ.get('SERVER_HOST', '0.0.0.0')
+    try:
+        PORT = int(os.environ.get('SERVER_PORT', '5000'))
+    except ValueError:
+        PORT = 5000
+    app.run(HOST, PORT, debug=True)

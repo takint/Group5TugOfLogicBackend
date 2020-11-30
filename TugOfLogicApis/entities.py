@@ -21,6 +21,8 @@ class Games(tolDb.Document):
     numOfPlayer = tolDb.IntField()
     isCurrent = tolDb.BooleanField()
 
+    userInGame=[]
+
     meta = {
         'collection': 'Games'
     }
