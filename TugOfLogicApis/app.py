@@ -11,9 +11,11 @@ tolDb = dbHelpers.get_db_connection(app)
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
 
+
 @app.route('/', methods=['GET'])
 def init():
     return render_template('index.html')
+
 
 # Common blocks:
 @app.route('/login', methods=['POST'])
@@ -25,6 +27,7 @@ def login():
     if not user:
         return jsonify({'error': 'User and password are invalid!'})
     return jsonify(user)
+
 
 # End Common blocks
 
@@ -54,30 +57,30 @@ def add_main_claim():
     mc.save()
     return jsonify(mc)
 
-@app.route('/update-main-claim', methods=['PUT'])
-def update_main_claim():
-    mainClaim = request.get_json()
-    mc = MainClaims.objects(mainClaimId=mainClaim["mainClaimId"]).first()
+@app.route('/update-main-claim/<int:mcId>', methods=['PUT'])
+def update_main_claim(mcId):
+    mc = MainClaims.objects(mainClaimId=mcId).first()
+    updatedMainClaim = request.get_json()
+
     if not mc:
         return jsonify({'error': 'data not found'})
     else:
-        mc.update(statement=mainClaim["statement"],
-                  numOfAgree=mainClaim["numOfAgree"],
-                  numOfDisagree=mainClaim["numOfDisagree"])
+        mc.update(statement=updatedMainClaim["statement"],
+                  numOfAgree=updatedMainClaim["numOfAgree"],
+                  numOfDisagree=updatedMainClaim["numOfDisagree"])
 
     return jsonify(mc)
 
-@app.route('/delete-main-claim', methods=['DELETE'])
-def delete_main_claim():
-    mainClaim = request.get_json()
-    mc = MainClaims.objects(mainClaimId=mainClaim["mainClaimId"]).first()
+@app.route('/delete-main-claim/<int:mcId>', methods=['DELETE'])
+def delete_main_claim(mcId):
+    mc = MainClaims.objects(mainClaimId=mcId).first()
 
     if not mc:
         return jsonify({'error': 'data not found'})
     else:
         mc.delete()
 
-    return jsonify(mc)
+    return jsonify("MainClaim deleted: OK")
 
 
 ###Games###
