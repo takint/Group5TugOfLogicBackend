@@ -94,7 +94,6 @@ def get_game(id):
 @app.route('/add-game', methods=['POST'])
 def add_game():
     game = request.get_json()
-    print(game)
     newGame = Games(gameId=game["gameId"],
                     startTime=game["startTime"],
                     endTime=game["endTime"],
@@ -298,20 +297,21 @@ def delete_vote():
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
-    send_broadcast_message_game_room(data)
+    send_broadcast_message_game_room(format(data))
 
 @socketio.on('newUser')
 def receive_new_user_from_student(data):
     userGame = data.split(':')
 
-    newUser = Users(userType="Student",
-                username=userGame[0],
-                email=userGame[0],
-                fullName=userGame[0],
-                gamePlayed=userGame[1])
+    existedUser = Users.objects(username=userGame[0], gamePlayed=userGame[1]).first()
+    if not existedUser:
+        newUser = Users(userType="Student",
+                    username=userGame[0],
+                    email=userGame[0],
+                    fullName=userGame[0],
+                    gamePlayed=userGame[1])
+        newUser.save()
 
-    newUser.save()
-    
     userData = Users.objects(gamePlayed=int(userGame[1])).only('username')
     listUsers = []
     
@@ -332,8 +332,9 @@ def get_running_game():
     send_broadcast_message_game_room(format(currentGameIds))
 
 @socketio.on('startGame')
-def startGame():
-    emit('notification_startGame','', broadcast=True)
+def startGame(msg):
+    print(msg)
+    emit('notification_startGame', msg, broadcast=True)
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
