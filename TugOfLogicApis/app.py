@@ -390,14 +390,13 @@ def set_Current_MainClaim(data):
 
 @socketio.on('startGame')
 def startGame(data):
-    print(data)
     gameId = data.split(':')[0]
     mcs = data.split(':')[1][:-1]
     selectedMainClaims = mcs.split(',')
     for mc in selectedMainClaims:
         updatedMainClaim = MainClaims.objects(mainClaimId=mc).first()
         updatedMainClaim.update(gameId = gameId)
-    emit('notification_startGame', data, broadcast=True)
+    emit('notification_startGame', gameId, broadcast=True)
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
