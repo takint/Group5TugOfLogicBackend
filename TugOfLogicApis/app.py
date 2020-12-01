@@ -344,7 +344,7 @@ def remove_rip_from_student(data):
 def receive_new_game_from_instructor(data):
     # Set all games to passed
     Games.objects.update(isCurrent=False)
-
+    
     # Post only gameId here to current
     Games.objects(gameId=data).update(isCurrent=True)
     Users.objects(userType="Instructor").update(gamePlayed=data)
@@ -402,6 +402,13 @@ def startGame(data):
         updatedMainClaim = MainClaims.objects(mainClaimId=mc).first()
         updatedMainClaim.update(gameId = gameId)
     emit('notification_startGame', gameId, broadcast=True)
+
+@socketio.on('endGame')
+def end_game(data):
+    gameData = Games.objects(gameId=data,isCurrent=True)
+    for g in gameData:
+        g.update(isCurrent=False)
+    emit('notification_endGame', data, broadcast=True)
 
 # this would send a message to ALL clients
 def send_broadcast_message_game_room(msg):
