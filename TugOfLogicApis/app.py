@@ -46,6 +46,11 @@ def get_main_claim(mcId):
     mc = MainClaims.objects(mainClaimId=mcId).first()
     return jsonify(mc)
 
+@app.route('/main-claims-on-game/<int:gameId>', methods=['GET'])
+def get_main_claim_on_game(gameId):
+    mc = MainClaims.objects(gameId=gameId)
+    return jsonify(mc)
+
 @app.route('/add-main-claim', methods=['POST'])
 def add_main_claim():
     mainClaim = request.get_json()
