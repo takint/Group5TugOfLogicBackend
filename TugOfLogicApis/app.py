@@ -388,6 +388,11 @@ def get_running_game():
     emit('notification_game_room', format(currentGameIds), room = currentSession)
 
 
+@socketio.on('setCurrentMainClaim')
+def set_Current_MainClaim(data):
+    print(data)
+    emit('notification_current_mainclaim', format(data), broadcast=True)
+
 @socketio.on('startGame')
 def startGame(data):
     gameId = data.split(':')[0]
