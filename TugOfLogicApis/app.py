@@ -151,6 +151,11 @@ def get_user(id):
     user = Users.objects(userId=id).first()
     return jsonify(user)
 
+@app.route('/users-in-game/<int:gameId>', methods=['GET'])
+def get_users_in_game(gameId):
+    user = Users.objects(gamePlayed=gameId)
+    return jsonify(user)
+
 @app.route('/add-user', methods=['POST'])
 def add_user():
     user = request.get_json()
@@ -320,6 +325,8 @@ def delete_vote():
     return jsonify(deleteVote)
 
 
+### SOCKET IO for Notification and Broadcasting ###
+
 @socketio.on('newRipFromPlayer')
 def receive_new_rip_from_student(data):
     emit('newRipFromPlayer', data, broadcast=True)
@@ -330,9 +337,17 @@ def remove_rip_from_student(data):
 
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
+    # Set all games to passed
     Games.objects.update(isCurrent=False)
-    Users.objects.delete()
-    send_broadcast_message_game_room(format(data))
+
+    # Post only gameId here to current
+    Games.objects(gameId=data).update(isCurrent=True)
+    Users.objects(userType="Instructor").update(gamePlayed=data)
+
+    # Remove all student users
+    Users.objects(userType="Student").delete()
+
+    send_broadcast_message_game_room(data)
 
 @socketio.on('newUser')
 def receive_new_user_from_student(data):
