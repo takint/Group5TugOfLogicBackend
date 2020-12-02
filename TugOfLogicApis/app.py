@@ -344,6 +344,10 @@ def receive_new_rip_from_student(data):
 def remove_rip_from_student(data):
     emit('removeRipFromPlayer', data, broadcast=True)
 
+@socketio.on('newVoteComing')
+def receive_new_vote_from_student(data):
+    emit('newVoteComing', data, broadcast=True)
+
 @socketio.on('newGame')
 def receive_new_game_from_instructor(data):
     # Set all games to passed

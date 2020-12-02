@@ -57,7 +57,7 @@ class ReasonInPlays(tolDb.Document):
 class Votes(tolDb.Document):
     voteId = tolDb.IntField()
     gameId = tolDb.IntField()
-    userId = tolDb.IntField()
+    userId = tolDb.StringField()
     mainClaimId = tolDb.IntField()
     ripId = tolDb.IntField()
     statementToVote = tolDb.StringField()
