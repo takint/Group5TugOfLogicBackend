@@ -294,8 +294,8 @@ def get_vote(id):
 @app.route('/add-vote', methods=['POST'])
 def add_vote():
     vote = request.get_json()
-
-    newVote = Votes(voteId=vote["voteId"],
+    newId = Votes.objects.count() + 1
+    newVote = Votes(voteId=newId,
                     gameId=vote["gameId"],
                     userId=vote["userId"],
                     mainClaimId=vote["mainClaimId"],
@@ -379,7 +379,6 @@ def receive_new_user_from_student(data):
     for u in userData:
         listUsers.append(u.username)
 
-    print(listUsers)
     send_broadcast_message_user(format(listUsers))
 
 @socketio.on('getRunningGame')
