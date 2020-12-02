@@ -234,11 +234,15 @@ def get_rip_by_user(username):
 def add_rip():
     reason = request.get_json()
     rip = None
+
+    userRip = Users.objects(username=reason["description"]).first()
+    userId = userRip.userId if userRip else 1
+
     if reason["ripId"] == 0:
         newId = ReasonInPlays.objects.count() + 1
         rip = ReasonInPlays(ripId=newId,
                             mainClaimId=reason["mainClaimId"],
-                            studentId=reason["studentId"],
+                            studentId=userId,
                             reasonStatement=reason["reasonStatement"],
                             description=reason["description"],
                             logicSide=reason["logicSide"])
@@ -360,7 +364,9 @@ def receive_new_user_from_student(data):
 
     existedUser = Users.objects(username=userGame[0], gamePlayed=userGame[1]).first()
     if not existedUser:
-        newUser = Users(userType="Student",
+        newId = Users.objects.count() + 1
+        newUser = Users(userId=newId,
+                    userType="Student",
                     username=userGame[0],
                     email=userGame[0],
                     fullName=userGame[0],
